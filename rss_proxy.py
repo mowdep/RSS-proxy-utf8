@@ -110,27 +110,26 @@ def add_url():
 
 @app.route('/proxy')
 def rss_proxy():
-    # Get the target RSS feed URL from the query parameter
+    # Extract the target RSS feed URL from the query parameter
     target_url = request.args.get('url')
     if not target_url:
         return "Missing 'url' parameter", 400
 
     try:
+        # Extract all other query parameters
+        query_params = request.args.to_dict()
+        query_params.pop('url', None)  # Remove 'url' from parameters passed to the target
+
         # Fetch the RSS feed
-        response = requests.get(target_url)
-        response_content = response.content  # Get raw binary content
+        response = requests.get(target_url, params=query_params)
+        response.encoding = 'windows-1251'  # Decode as Windows-1251
 
-        # Detect the encoding
-        detected = charset_normalizer.detect(response_content)
-        encoding = detected['encoding'] or 'utf-8'  # Default to UTF-8 if undetectable
+        # Modify the XML declaration to specify UTF-8
+        utf8_content = response.text.replace(
+            'encoding="windows-1251"', 'encoding="utf-8"'
+        ).encode('utf-8')  # Re-encode the content as UTF-8
 
-        # Decode and re-encode the content
-        decoded_content = response_content.decode(encoding)
-        utf8_content = decoded_content.replace(
-            f'encoding="{encoding}"', 'encoding="utf-8"'
-        ).encode('utf-8')
-
-        # Return the re-encoded content
+        # Return the modified content with appropriate headers
         return Response(utf8_content, content_type='application/rss+xml; charset=utf-8')
     except Exception as e:
         return f"Error processing feed: {e}", 500
