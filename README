@@ -1,0 +1,162 @@
+# RSS Proxy Service
+
+This Dockerized application provides an RSS proxy service that converts RSS feeds encoded in various formats (e.g., Windows-1251) to UTF-8. It also includes a simple web interface to add and manage RSS feed links, allowing users to access proxified RSS URLs and view the detected encoding of the feeds. All data is stored persistently.
+
+## Features
+
+- Converts RSS feeds from various encodings to UTF-8.
+- Web UI for adding RSS URLs and viewing proxified links.
+- Persistent data storage using a `data` folder.
+- Easy deployment with Docker and Docker Compose.
+- Accessible on any specified port (default: `9090`).
+
+---
+
+## Setup and Usage
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+---
+
+### Build and Run with Docker Compose
+
+1. Clone this repository and navigate to the directory:
+
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
+
+2. Ensure there is a `data` folder in the project root for persistent storage:
+
+   ```bash
+   mkdir data
+   ```
+
+3. Build and run the Docker container:
+
+   ```bash
+   docker-compose up --build -d
+   ```
+
+4. Access the application in your web browser at:
+
+   ```
+   http://localhost:9090
+   ```
+
+---
+
+### Adding RSS Feeds
+
+1. Open the web interface.
+2. Enter the RSS feed URL in the input box and submit it.
+3. The application will provide a proxified URL that converts the feed encoding to UTF-8.
+4. Previously proxified links and their detected encodings will be listed on the page.
+
+---
+
+### File Structure
+
+- **`Dockerfile`**: Defines the container environment and application setup.
+- **`docker-compose.yml`**: Simplifies the deployment of the application.
+- **`data/`**: A folder for persistent storage of proxified URLs.
+
+---
+
+### Managing the Application
+
+#### Start the Service
+
+Run the application in detached mode:
+
+```bash
+docker-compose up -d
+```
+
+#### Stop the Service
+
+Stop the application and remove containers:
+
+```bash
+docker-compose down
+```
+
+#### Rebuild the Service
+
+If the application code or dependencies change, rebuild the service:
+
+```bash
+docker-compose up --build -d
+```
+
+#### View Logs
+
+Check the application logs:
+
+```bash
+docker-compose logs -f
+```
+
+---
+
+## Technical Details
+
+### Ports
+
+- The application runs internally on port `8080`. By default, it is exposed on port `9090` of the host machine. You can modify this in the `docker-compose.yml` file:
+
+  ```yaml
+  ports:
+    - "9090:8080"
+  ```
+
+### Persistent Data
+
+- The application stores data in a SQLite database within the `data` folder.
+- Ensure the `data` folder exists and is writable.
+- Data persists across container restarts.
+
+---
+
+## Example Usage
+
+1. Add an RSS feed:
+   ```
+   http://example.com/rss
+   ```
+
+2. Receive a proxified link:
+   ```
+   http://localhost:9090/proxy?url=http://example.com/rss
+   ```
+
+3. Use the proxified link in your RSS reader to ensure UTF-8 compatibility.
+
+---
+
+## Customization
+
+- **Change Host Port**: Edit the `docker-compose.yml` file:
+
+  ```yaml
+  ports:
+    - "<desired-port>:8080"
+  ```
+
+- **Modify Persistent Storage Path**: Update the `volumes` entry in `docker-compose.yml`:
+
+  ```yaml
+  volumes:
+    - /absolute/path/to/data:/app/data
+  ```
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
